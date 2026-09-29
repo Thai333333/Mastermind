@@ -1,0 +1,4 @@
+Besoin des librairies :
+    random(déjà installé)
+    pyxel
+    pytest(uniquement pour le test)
