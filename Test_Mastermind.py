@@ -1,10 +1,18 @@
 import pytest
 from Projet_mastermind import*
 
-# Test
+combinaison_longueur = 4
+combinaison_chiffres_possibles = [1, 2, 3, 4, 5, 6]
+
+# Test generer combinaison secrète
 def test_longueur_generer_combinaison_secrete():
-    assert len(generer_combinaison_secrete(4,[1,2,3,4,5,6]))
+    assert len(generer_combinaison_secrete(combinaison_longueur, combinaison_chiffres_possibles)) == 4
 
 def test_contenu_generer_combinaison_secrete():
-    for i in range (4):
-        assert generer_combinaison_secrete(4,[1,2,3,4,5,6]) in [1,2,3,4,5,6]
+    assert set(generer_combinaison_secrete(combinaison_longueur, combinaison_chiffres_possibles)).issubset(set(combinaison_chiffres_possibles))
+
+def test_longueur_demander_proposition(monkeypatch):
+    reponses = iter(["1","2", "3","4"])
+    monkeypatch.setattr("builtins.input", lambda: next(reponses))
+    resultat = demander_proposition(4, [1, 2, 3, 4, 5, 6])
+    assert len(resultat) == 4
