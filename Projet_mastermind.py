@@ -16,7 +16,7 @@ def demander_proposition(taille, chiffres_possibles):
     for i in range(taille):
         proposition=int(input())
         if proposition in chiffres_possibles: # Vérification de la validité de la proposition de l'utilisateur
-            combinaison.append(int(input()))
+            combinaison.append(proposition)
         else:
             taille+=1
     return combinaison
