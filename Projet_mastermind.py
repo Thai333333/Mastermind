@@ -1,6 +1,11 @@
 # Importation des librairies nécessaires
 from random import*
 
+#Initialisation de variables pour éviter les répétitions
+
+combinaison_longueur = 4
+combinaison_chiffres_possibles = [1, 2, 3, 4, 5, 6]
+
 # Création des fonctions
 
 # Génération aléatoire de la combinaison secrète
@@ -31,10 +36,13 @@ def analyser_proposition(secret, proposition):
     for i in range(len(secret)): # On test si les nombres sont dans la combinaison mais mal placées
         if proposition[i] != secret [i] and proposition[i] in secret: # On vérifie que le nombre est bien dans la combinaison mais mal placé
             mal_place += 1
+            del secret[i]
+            del proposition[i]
     return bien_place, mal_place
 
 # On affiche le résultat de l'analyse
-def afficher_resultat(bien_places, mal_places):
+def afficher_resultat(secret, proposition):
+    (bien_places, mal_places) = analyser_proposition(secret, proposition)
     print("Il y a", bien_places, "chiffres bien placés et", mal_places, "chiffres mal placés.")
 
 # On appelle les fonctions nécessaires au fonctionnement du jeu
@@ -51,7 +59,7 @@ def jouer_une_partie():
             print("Bravo ! Vous avez réussi en", essai, "essai !")
             break
         else: # Si la solution n'est pas trouvé on affiche l'analyse
-            print(afficher_resultat(analyser_proposition(combinaison_secrete, proposition)))
+            print(afficher_resultat(combinaison_secrete,proposition))
 
 # On appelle la fonction main qui appelle la fonction jouer_une_partie pour lancer le jeu
 def main():
