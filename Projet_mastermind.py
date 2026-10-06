@@ -1,10 +1,30 @@
 # Importation des librairies nécessaires
 from random import*
+import pyxel
 
 #Initialisation de variables pour éviter les répétitions
 
 combinaison_longueur = 4
 combinaison_chiffres_possibles = [1, 2, 3, 4, 5, 6]
+
+
+# Création des fonctions graphiques pour le jeu
+
+def init():
+    pyxel.init(200, 200, title="Mastermind")
+    pyxel.run(update, draw) 
+
+def draw():
+    pyxel.cls(0)
+    pyxel.text(50, 50, "Appuyez sur ESPACE pour jouer", pyxel.COLOR_WHITE)
+    pyxel.text(50, 70, "Appuyez sur Q pour quitter", pyxel.COLOR_WHITE)
+    
+def update():
+    if pyxel.btnp(pyxel.KEY_Q): # On quitte le jeu si on appuie sur la touche Q
+        pyxel.quit()
+    if pyxel.btnp(pyxel.KEY_SPACE): # On lance une partie si on appuie sur la touche espace
+        main()
+
 
 # Création des fonctions
 
@@ -53,6 +73,7 @@ def jouer_une_partie():
     chiffres_possibles = [1,2,3,4,5,6]
     combinaison_secrete = generer_combinaison_secrete(taille,chiffres_possibles)
     while True: # Tant que la solution n'est pas trouvé le jeu continue
+        draw()
         essai += 1
         proposition = demander_proposition(taille, chiffres_possibles)
         if analyser_proposition(combinaison_secrete, proposition) == (0,4): # Si la combinaison est bonne on sort de la boucle et on dit que c'est gagné
@@ -64,3 +85,4 @@ def jouer_une_partie():
 # On appelle la fonction main qui appelle la fonction jouer_une_partie pour lancer le jeu
 def main():
     jouer_une_partie()
+    init()
