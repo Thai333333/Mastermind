@@ -1,4 +1,5 @@
 import pytest
+from pyxel import *
 from Projet_mastermind import*
 
 combinaison_longueur = 4
