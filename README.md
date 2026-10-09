@@ -1,7 +1,7 @@
 # Mastermind
 Projet mastermind 1re NSI
 
-Consulter le fichier librairies pour vérifier celles nécessaires
+Consulter le fichier librairie.txt pour vérifier celles nécessaires et pour lancer le venv
 
 # Ne publier sur la branche main que les versions fonctionnelles et finies
 # Ne pas hésiter à créer des branches pour les fonctionnalitées non essentiels au fonctionnement du code
