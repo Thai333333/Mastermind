@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="U:\thai.pacaud\Github desktop\Mastermind\Mastermind\.venv"
+VIRTUAL_ENV="U:\thai.pacaud\Github desktop\Mastermind\Mastermind\Mastermind\.venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
