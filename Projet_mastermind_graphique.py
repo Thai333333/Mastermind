@@ -16,22 +16,24 @@ pyxel.load("Assemblage.pyxres")
 #Initialisation des classes graphiques
 class Bouton:
 
-    def __init__(self, numero, ordre):
+    def __init__(self, couleur, ordre, compte_historique):
         self.ordre = ordre
-        self.numero = numero
+        self.couleur = couleur
+        self.compte_historique = compte_historique
 
         self.x = 0
         self.y = 220
         self.largeur = 5
         self.hauteur = 5
         self.image = 0
-        self.debut_x = 1
+        self.debut_x = 0
         self.debut_y = 1
         self.echelle = 6
+        self.ecart_historique = 30
 
     def calcul_bar_du_bas_position(self):
-        self.x = 23 + 40*self.numero
-        self.debut_x = 1 + 8*self.numero
+        self.x = 23 + 40*self.couleur
+        self.debut_x = 1 + 8*self.couleur
 
     def est_clique(self):
         souris_dans_bouton = (self.x - 3 * self.echelle<= pyxel.mouse_x <= self.x + self.largeur * self.echelle / 2) and (self.y - 3 * self.echelle <= pyxel.mouse_y <= self.y + self.hauteur * self.echelle / 2)
@@ -39,7 +41,7 @@ class Bouton:
         return souris_dans_bouton and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
 
     def calcul_proposition_position(self):
-        self.debut_x = 8*self.numero
+        self.debut_x = 8*self.couleur
         self.debut_y = 8
         self.hauteur = 7
         self.largeur = 7
@@ -50,9 +52,18 @@ class Bouton:
     def affichage(self):
         pyxel.blt(self.x, self.y, self.image, self.debut_x, self.debut_y, self.largeur, self.hauteur, 0, None, self.echelle)
 
+    def calcul_position_historique_bouton(self):
+        self.echelle = 2
+        self.x = 15 + self.ordre * 15
+        self.y = 14 + self.ecart_historique * self.compte_historique
+        self.debut_x = self.couleur * 8
+        self.largeur = 7
+
 class Barette:
 
-    def __init__(self):
+    def __init__(self,compte_historique):
+        self.compte_historique = compte_historique
+
         self.x = 118
         self.y = 170
         self.largeur = 15
@@ -65,77 +76,105 @@ class Barette:
     def affichage(self):
         pyxel.blt(self.x, self.y, self.image, self.debut_x, self.debut_y, self.largeur, self.hauteur, 0, None, self.echelle)
 
-    def calcul_position_historique():
-        pass
+    def calcul_position_historique_barette(self):
+        self.x = 33
+        self.y = 15 + self.compte_historique * 30
+        self.echelle = 5
 
 
 # Création des boutons colorés
 boutons = [
-    Bouton(0, None),
-    Bouton(1, None),
-    Bouton(2, None),
-    Bouton(3, None),
-    Bouton(4, None),
-    Bouton(5, None)
+    Bouton(0, None, None),
+    Bouton(1, None, None),
+    Bouton(2, None, None),
+    Bouton(3, None, None),
+    Bouton(4, None, None),
+    Bouton(5, None, None)
 ]
 
 
 # Création de la barette
-barettes = [Barette()]
+barettes = [Barette(None)]
 
 # Création des clones
 boutons_clique : list[Bouton] = []
 
-historique_propositions : list[list[Bouton]] = []
+historique_propositions_bouton : list[list[Bouton]] = []
+
+historique_propositions_barette : list[Barette] = []
 
 
 # Fonctions graphiques update et draw
 def update():
 
     # Calcul des positions des boutons
-    i=-1
+    couleur=-1
+    essai = len(historique_propositions_bouton)
+
+    # Vérifie et crée un bouton sur la barette si cliqué
     for bouton in boutons:
-        i+=1
+        couleur+=1
         bouton.calcul_bar_du_bas_position()
         if bouton.est_clique() and len(boutons_clique) < 4:
             # Gérer le clic sur le bouton
-            index_dernier_boutons_clique = len(boutons_clique)
-            boutons_clique.append(Bouton(i,index_dernier_boutons_clique))
+            boutons_clique.append(Bouton(couleur, len(boutons_clique), essai))
                 
     # Calcul des positions sur la barette
     for bouton in boutons_clique:
         bouton.calcul_proposition_position()
 
-    # Valider la proposition par l'utlilisateur
-    if len(boutons_clique) == 4 and (pyxel.mouse_x >= 203 and pyxel.mouse_x <= 243) and (pyxel.mouse_y >= 162 and pyxel.mouse_y <= 182) and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-        historique_propositions.append(boutons_clique.copy())
-        boutons_clique.clear()
+    # Valider la proposition par l'utlilisateur quand valider est cliqué
+    if len(boutons_clique) == 4 and (pyxel.mouse_x >= 203 and pyxel.mouse_x <= 243) and (pyxel.mouse_y >= 162 and pyxel.mouse_y <= 182) and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT): 
+        # Stockage de l'historique d'affichage dans une liste de listes de boutons
 
-    
+        for bouton in boutons_clique:
+            bouton.calcul_position_historique_bouton()
+        
+        historique_propositions_bouton.append(boutons_clique.copy())
+        historique_propositions_barette.append(Barette(essai))
+        
+        # Réinitialiser les boutons cliqués et compte du nombre d'essai
+        boutons_clique.clear()
+        essai += 1
+
+    for barette in historique_propositions_barette:
+        barette.calcul_position_historique_barette()
 
 
 def draw():
     pyxel.cls(6)
     pyxel.mouse(True)
-    pyxel.blt(0,0,0,1,1,5,5,0,None)
     
 
     # Placement des boutons colorés
     for bouton in boutons:
         bouton.affichage()
 
+    # Placement de la barette
     for barette in barettes:
         barette.affichage()
 
+    # Placement des boutons cliqués
     for bouton in boutons_clique:
         bouton.affichage()
 
+    # Placement du bouton valider si 4 boutons sont cliqués
     if len(boutons_clique) == 4:
         pyxel.rect(203, 162, 40, 20, 0)
         pyxel.text(210, 168, "Valider", 7)
+
+    # Placement des barettes pour l'historique
+    for barette in historique_propositions_barette:
+            barette.affichage()
+
+    # Placement de l'historique des propositions
+    for proposition in historique_propositions_bouton:
+        for bouton in proposition:
+            bouton.affichage()
+
+
         
 
 
 # Lancement du jeu
 pyxel.run(update, draw)
-
