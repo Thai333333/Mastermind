@@ -20,7 +20,7 @@ class App:
         self.jeu = False
 
         # Génération de la combinaison
-        self.liste_combinaison_secrete = Class.CodeSecret().liste_combinaison
+        self.liste_combinaison_secrete: list[Class.Bouton] = []
 
         # Création des boutons colorés
         self.liste_boutons: list[Class.Bouton] = Class.ListeBouton().liste_bouton
@@ -43,6 +43,9 @@ class App:
 
         # Lancement du jeu
         pyxel.run(self.update,self.draw)
+
+        def lancer_une_partie(self):
+            self.liste_combinaison_secrete = Class.CodeSecret().liste_combinaison
 
 
     # Fonctions calcul update et graphique draw
