@@ -1,0 +1,3 @@
+1. Si besoin de créer un venv, faire dans un terminal : python -m venv .venv
+2. Pour l'activer, utiliser la commande : .venv\Scripts\activate  
+3. Installer les librairies si elles ne le sont pas déjà

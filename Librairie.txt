@@ -1,4 +1,5 @@
 Besoin des librairies :
     random(déjà installé)
     pyxel
+    Pillow (pour charger les polices TTF avec PoliceBitmap)
     pytest(uniquement pour le test)
