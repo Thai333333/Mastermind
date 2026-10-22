@@ -1,5 +1,6 @@
 import pyxel
 import random
+from math import ceil
 
 #Initialisation des classes graphiques
 class Bouton:
@@ -41,10 +42,10 @@ class Bouton:
         self.echelle = 2
         if self.compte_historique >= 5:
             self.x = 184 + self.ordre * 15
-            self.compte_historique -= 5
+            self.y = 14 + self.ecart_historique * (self.compte_historique - 5)
         else :
             self.x = 15 + self.ordre * 15
-        self.y = 14 + self.ecart_historique * self.compte_historique
+            self.y = 14 + self.ecart_historique * self.compte_historique
         self.debut_x = self.couleur * 8
         self.largeur = 7
 
@@ -84,31 +85,32 @@ class Texte:
         self.y = y
         self.couleur = couleur
 
-    def affichage(self):
+    def affichage(self) -> None:
         if not self.texte == None :
             pyxel.text(self.x, self.y, self.texte, self.couleur)
 
+
 class FondTexte:
-    def __init__(self, x, y, largeur, hauteur, couleur):
+    def __init__(self, x, y, largeur, hauteur, couleur) -> None:
         self.x = x
         self.y = y
         self.largeur = largeur
         self.hauteur = hauteur
         self.couleur = couleur
 
-    def affichage(self):
+    def affichage(self) -> None:
         pyxel.rect(self.x, self.y, self.largeur, self.hauteur, self.couleur)
 
 class ListeBouton:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.liste_bouton : list[Bouton] = []
         for i in range (6):
             self.liste_bouton.append(Bouton(i, None, None))
 
 class CodeSecret:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.liste_combinaison : list[Bouton] = []
         self.liste_boutons: list[Bouton] = ListeBouton().liste_bouton
 
@@ -117,7 +119,7 @@ class CodeSecret:
 
 class Comparateur:
 
-    def __init__(self, code_secret : list[Bouton], compte_historique):
+    def __init__(self, code_secret : list[Bouton], compte_historique) -> None:
         self.code_secret = code_secret
         self.compte_historique = compte_historique
 
@@ -130,7 +132,7 @@ class Comparateur:
         self.liste_proposition: list[Bouton] = []
 
     # On réinitialise à chaque calcul les variables 
-    def initialiser_les_variables(self, proposition):
+    def initialiser_les_variables(self, proposition) -> None:
         self.bien_place = 0
         self.mal_place = 0
         self.liste_proposition = list(proposition)
@@ -151,9 +153,8 @@ class Comparateur:
 
         for index, proposition in enumerate(self.liste_proposition):
             if (
-                index < len(self.code_secret)
-                and proposition.couleur != self.code_secret[index].couleur
-                and proposition.couleur in couleurs_restantes
+            proposition.couleur != self.code_secret[index].couleur
+            and proposition.couleur in couleurs_restantes
             ):
                 self.mal_place += 1
                 couleurs_restantes.remove(proposition.couleur)
