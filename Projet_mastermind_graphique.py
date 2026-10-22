@@ -16,11 +16,11 @@ class App:
         # Création des variables de gestion pour l'affichage
         self.gagner = False
         self.perdu = False
-        self.menu = True
-        self.jeu = False
+        self.menu = False
+        self.jeu = True
 
         # Génération de la combinaison
-        self.liste_combinaison_secrete: list[Class.Bouton] = []
+        self.liste_combinaison_secrete: list[Class.Bouton] = Class.CodeSecret().liste_combinaison
 
         # Création des boutons colorés
         self.liste_boutons: list[Class.Bouton] = Class.ListeBouton().liste_bouton
@@ -43,9 +43,6 @@ class App:
 
         # Lancement du jeu
         pyxel.run(self.update,self.draw)
-
-        def lancer_une_partie(self):
-            self.liste_combinaison_secrete = Class.CodeSecret().liste_combinaison
 
 
     # Fonctions calcul update et graphique draw
@@ -107,19 +104,13 @@ class App:
             for bouton in self.liste_combinaison_secrete:
                 bouton.calcul_proposition_position()
 
-            self.liste_fond_texte.append(Class.FondTexte(30, 220, 85, 22, 11))
-            self.liste_fond_texte.append(Class.FondTexte(135, 220, 85, 22, 13))
-
-            self.liste_fond_texte.append(Police.PoliceBitmap(41, 223, "Rejouer", 7))
-            self.liste_fond_texte.append(Police.PoliceBitmap(159, 223, "Menu", 7))
-
             if self.gagner:
-                self.liste_fond_texte.append(Police.PoliceBitmap(75, 65, "Bien joué !", 0))
-                self.liste_fond_texte.append(Police.PoliceBitmap(48, 85, "Vous avez gagné !", 0))
+                self.liste_texte_police.append(Police.PoliceBitmap(75, 65, "Bien joué !", 0))
+                self.liste_texte_police.append(Police.PoliceBitmap(48, 85, "Vous avez gagné !", 0))
                 
             else:
-                self.liste_fond_texte.append(Police.PoliceBitmap(84, 65, "Dommage !", 0))
-                self.liste_fond_texte.append(Police.PoliceBitmap(48, 85, "Vous avez perdu !", 0))
+                self.liste_texte_police.append(Police.PoliceBitmap(84, 65, "Dommage !", 0))
+                self.liste_texte_police.append(Police.PoliceBitmap(48, 85, "Vous avez perdu !", 0))
 
         # Calcul des positions des boutons et de la barette que ce soit la fin de partie ou pas
         for bouton in self.liste_boutons_clique:
@@ -175,12 +166,6 @@ class App:
                 bouton.affichage()
 
             self.liste_texte[1].affichage()
-
-            i = 0
-            for fond_texte in self.liste_fond_texte:
-                if 0 < i:
-                    fond_texte.affichage()
-                i += 1
 
             if self.gagner:
                 for texte in self.liste_texte_police:
