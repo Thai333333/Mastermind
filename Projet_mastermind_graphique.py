@@ -1,6 +1,7 @@
 # Importation des librairies nécessaires et initialisation de la fenêtre Pyxel
 import pyxel
 import Class
+import Police
 
 
 class App:
@@ -15,6 +16,8 @@ class App:
         # Création des variables de gestion pour l'affichage
         self.gagner = False
         self.perdu = False
+        self.menu = True
+        self.jeu = False
 
         # Génération de la combinaison
         self.liste_combinaison_secrete = Class.CodeSecret().liste_combinaison
@@ -33,17 +36,24 @@ class App:
         self.liste_historique_propositions_bouton: list[list[Class.Bouton]] = []
         self.liste_historique_propositions_barette: list[Class.Barette] = []
         self.liste_fond_texte: list[Class.FondTexte] = []
+        self.liste_texte_police: list[Police.PoliceBitmap] = []
         self.liste_texte: list[Class.Texte] = [Class.Texte(None, None, None, None), 
                                                Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
                                                ]
 
         # Lancement du jeu
-        pyxel.run(self.update,self.draw)   
+        pyxel.run(self.update,self.draw)
 
 
     # Fonctions calcul update et graphique draw
     def update(self) -> None:
-        if not (self.gagner or self.perdu):
+
+        # Gestion du menu
+        if self.menu:
+            pass
+
+        # Lancement du jeu et gestion
+        if self.jeu:
             # Vérifie et crée un bouton sur la barette si cliqué
             for couleur, bouton in enumerate(self.liste_boutons):
                 bouton.calcul_bar_du_bas_position()
@@ -63,8 +73,6 @@ class App:
                 and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
             ):
 
-                
-                
                 # Stockage de l'historique d'affichage dans une liste de listes de boutons
                 self.liste_historique_propositions_bouton.append(self.liste_boutons_clique.copy())
                 self.liste_historique_propositions_barette.append(Class.Barette(self.essai))
@@ -88,7 +96,29 @@ class App:
                 self.liste_texte[0] = Class.Texte(None, None, None, None)
                 self.liste_texte[1] = Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
 
-        # Calcul des positions des boutons et de la barette
+        # Gestion de l'écran de fin
+
+        # Texte à afficher en fonction de si le joueur à gagné ou perdu
+        if self.gagner or self.perdu:
+
+            for bouton in self.liste_combinaison_secrete:
+                bouton.calcul_proposition_position()
+
+            self.liste_fond_texte.append(Class.FondTexte(30, 220, 85, 22, 11))
+            self.liste_fond_texte.append(Class.FondTexte(135, 220, 85, 22, 13))
+
+            self.liste_fond_texte.append(Police.PoliceBitmap(41, 223, "Rejouer", 7))
+            self.liste_fond_texte.append(Police.PoliceBitmap(159, 223, "Menu", 7))
+
+            if self.gagner:
+                self.liste_fond_texte.append(Police.PoliceBitmap(75, 65, "Bien joué !", 0))
+                self.liste_fond_texte.append(Police.PoliceBitmap(48, 85, "Vous avez gagné !", 0))
+                
+            else:
+                self.liste_fond_texte.append(Police.PoliceBitmap(84, 65, "Dommage !", 0))
+                self.liste_fond_texte.append(Police.PoliceBitmap(48, 85, "Vous avez perdu !", 0))
+
+        # Calcul des positions des boutons et de la barette que ce soit la fin de partie ou pas
         for bouton in self.liste_boutons_clique:
             bouton.calcul_proposition_position()
 
@@ -104,7 +134,7 @@ class App:
         pyxel.cls(15)
         pyxel.mouse(True)
 
-        if not (self.gagner or self.perdu):
+        if not (self.gagner or self.perdu or self.menu):
             # Placement des boutons colorés
             for bouton in self.liste_boutons:
                 bouton.affichage()
@@ -135,15 +165,26 @@ class App:
                     bouton.affichage()
 
         if self.gagner or self.perdu:
-            for barette in self.liste_barette:
-                barette.affaichage
+            for barette in self.liste_barettes:
+                barette.affichage()
 
             for bouton in self.liste_combinaison_secrete:
                 bouton.affichage()
 
+            self.liste_texte[1].affichage()
+
+            i = 0
+            for fond_texte in self.liste_fond_texte:
+                if 0 < i:
+                    fond_texte.affichage()
+                i += 1
+
             if self.gagner:
-                pass
+                for texte in self.liste_texte_police:
+                    texte.affichage()
+                
             else:
-                pass
+                for texte in self.liste_texte_police:
+                    texte.affichage()
 
 App()

@@ -1,6 +1,5 @@
 import pyxel
 import random
-from math import ceil
 
 #Initialisation des classes graphiques
 class Bouton:
@@ -34,7 +33,7 @@ class Bouton:
         self.debut_y = 8
         self.hauteur = 7
         self.largeur = 7
-        self.x = 78 + 30*self.ordre
+        self.x = 78 + 30 * self.ordre
         self.y = 169
         self.echelle = 4
 
@@ -114,8 +113,9 @@ class CodeSecret:
         self.liste_combinaison : list[Bouton] = []
         self.liste_boutons: list[Bouton] = ListeBouton().liste_bouton
 
-        for i in range (4):
-            self.liste_combinaison.append(random.choice(self.liste_boutons))
+        for i in range(4):
+            bouton_tire = random.choice(self.liste_boutons)
+            self.liste_combinaison.append(Bouton(bouton_tire.couleur, i, None))
 
 class Comparateur:
 

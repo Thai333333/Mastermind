@@ -8,13 +8,24 @@ class PoliceBitmap:
         "éèêëàâùûôîïçÉÈÊËÀÂÙÛÔÎÏÇ"
     )
 
-    def __init__(
-        self,
-        chemin_police: str,
-        taille: int = 12,
+    def __init__(self,
+        position_x: int,
+        position_y: int,
+        texte: str,
+        couleur: int = 7,
+        echelle: int = 1,
+        chemin_police: str = "VCR_OSD_MONO.ttf",
+        taille: int = 16,
         caracteres: str = CARACTERES_PAR_DEFAUT,
         colonnes: int = 16,
-    ) -> None:
+        ) -> None:
+
+        self.position_x = position_x
+        self.position_y = position_y
+        self.texte = texte
+        self.couleur = couleur
+        self.echelle = echelle
+        
         if taille <= 0:
             raise ValueError("La taille de la police doit être positive.")
         if colonnes <= 0:
@@ -32,18 +43,17 @@ class PoliceBitmap:
 
         caracteres = "".join(dict.fromkeys(caracteres))
         police = ImageFont.truetype(chemin_police, taille)
+        ascension, descente = police.getmetrics()
         mesures = {}
         largeur_case = 1
-        hauteur_case = 1
+        hauteur_case = ascension + descente
 
         for caractere in caracteres:
-            boite = police.getbbox(caractere)
+            boite = police.getbbox(caractere, anchor="ls")
             largeur = max(0, boite[2] - boite[0])
-            hauteur = max(0, boite[3] - boite[1])
             avance = max(1, ceil(police.getlength(caractere)))
-            mesures[caractere] = (boite, largeur, hauteur, avance)
+            mesures[caractere] = (boite, avance)
             largeur_case = max(largeur_case, largeur, avance)
-            hauteur_case = max(hauteur_case, hauteur)
 
         lignes = ceil(len(caracteres) / colonnes)
         largeur_atlas = colonnes * largeur_case
@@ -63,9 +73,15 @@ class PoliceBitmap:
             ligne = index // colonnes
             x = colonne * largeur_case
             y = ligne * hauteur_case
-            boite, largeur, hauteur, avance = mesures[caractere]
-            dessin.text((x - boite[0], y - boite[1]), caractere, font=police, fill=255)
-            self.glyphes[caractere] = (x, y, largeur, hauteur, avance)
+            boite, avance = mesures[caractere]
+            dessin.text(
+                (x - boite[0], y + ascension),
+                caractere,
+                font=police,
+                fill=255,
+                anchor="ls",
+            )
+            self.glyphes[caractere] = (x, y, largeur_case, hauteur_case, avance)
 
         self.image = pyxel.Image(largeur_atlas, hauteur_atlas)
         pixels = atlas_pil.load()
@@ -87,27 +103,20 @@ class PoliceBitmap:
                 f"Le caractère {caractere!r} n'est pas présent dans cette police."
             ) from erreur
 
-    def afficher(
-        self,
-        x: int,
-        y: int,
-        texte: str,
-        couleur: int = 7,
-        echelle: int = 1,
-    ) -> None:
-        if not 0 <= couleur <= 15:
+    def affichage(self) -> None:
+        if not 0 <= self.couleur <= 15:
             raise ValueError("La couleur Pyxel doit être comprise entre 0 et 15.")
-        if echelle <= 0:
+        if self.echelle <= 0:
             raise ValueError("L'échelle doit être positive.")
 
-        position_x = x
-        position_y = y
-        pyxel.pal(7, couleur)
+        position_x = self.position_x
+        position_y = self.position_y
+        pyxel.pal(7, self.couleur)
         try:
-            for caractere in texte:
+            for caractere in self.texte:
                 if caractere == "\n":
-                    position_x = x
-                    position_y += self.hauteur_ligne * echelle
+                    position_x = self.position_x
+                    position_y += self.hauteur_ligne * self.echelle
                     continue
 
                 u, v, largeur, hauteur, avance = self.recuperer_element(caractere)
@@ -121,8 +130,8 @@ class PoliceBitmap:
                         largeur,
                         hauteur,
                         colkey=0,
-                        scale=echelle,
+                        scale=self.echelle,
                     )
-                position_x += avance * echelle
+                position_x += avance * self.echelle
         finally:
             pyxel.pal()
