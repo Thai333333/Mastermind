@@ -89,16 +89,37 @@ class Texte:
             pyxel.text(self.x, self.y, self.texte, self.couleur)
 
 
-class FondTexte:
-    def __init__(self, x, y, largeur, hauteur, couleur) -> None:
+class Forme:
+    def __init__(self, forme: str, couleur, x, y, largeur = None, hauteur = None,
+                  x_2 = None, y_2 = None, x_3 = None, y_3 = None
+                  ) -> None:
+        self.forme = forme
+        self.couleur = couleur
         self.x = x
         self.y = y
         self.largeur = largeur
         self.hauteur = hauteur
-        self.couleur = couleur
+        self.x_2 = x_2
+        self.y_2 = y_2
+        self.x_3 = x_3
+        self.y_3 = y_3        
+
+    def afficher_rectangle(self) -> None:
+        pyxel.rect(self.x, self.y, self.largeur, self.hauteur, self.couleur)
+
+    def afficher_cercle(self) -> None:
+        pyxel.circ(self.x, self.y, self.largeur, self.couleur)
+
+    def afficher_triangle(self) -> None:
+        pyxel.tri(self.x, self.y, self.x_2, self.y_2, self.x_3, self.y_3, self.couleur)
 
     def affichage(self) -> None:
-        pyxel.rect(self.x, self.y, self.largeur, self.hauteur, self.couleur)
+        if self.forme == "rectangle":
+            self.afficher_rectangle()
+        elif self.forme == "cercle":
+            self.afficher_cercle()
+        elif self.forme == "triangle":
+            self.afficher_triangle()
 
 class ListeBouton:
 
@@ -153,8 +174,8 @@ class Comparateur:
 
         for index, proposition in enumerate(self.liste_proposition):
             if (
-            proposition.couleur != self.code_secret[index].couleur
-            and proposition.couleur in couleurs_restantes
+                proposition.couleur != self.code_secret[index].couleur
+                and proposition.couleur in couleurs_restantes
             ):
                 self.mal_place += 1
                 couleurs_restantes.remove(proposition.couleur)
