@@ -18,11 +18,11 @@ class App:
         self.ecran_menu_pret = False
         self.gagner = False
         self.perdu = False
-        self.menu = False
-        self.jeu = True
+        self.menu = True
+        self.jeu = False
 
         # Génération de la combinaison
-        self.liste_combinaison_secrete: list[Class.Bouton] = Class.CodeSecret().liste_combinaison
+        self.liste_combinaison_secrete: list[Class.Bouton] = []
 
         # Création des boutons colorés
         self.liste_boutons: list[Class.Bouton] = Class.ListeBouton().liste_bouton
