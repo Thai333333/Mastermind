@@ -1,0 +1,46 @@
+name: Construire l'application macOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    # macos-14 est un runner Apple Silicon (arm64)
+    runs-on: macos-14
+
+    steps:
+      - name: Récupérer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyxel Pillow pyinstaller
+
+      - name: Construire l'application
+        run: |
+          python -m PyInstaller --clean --noconfirm --windowed \
+            --name Mastermind \
+            --collect-all pyxel \
+            --add-data "Assemblage.pyxres:." \
+            --add-data "VCR_OSD_MONO.ttf:." \
+            Projet_mastermind_graphique.py
+
+      - name: Créer l'image disque
+        run: |
+          hdiutil create \
+            -volname Mastermind \
+            -srcfolder dist/Mastermind.app \
+            -ov -format UDZO \
+            dist/Mastermind-macOS.dmg
+
+      - name: Publier le fichier à télécharger
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mastermind-macOS
+          path: dist/Mastermind-macOS.dmg
