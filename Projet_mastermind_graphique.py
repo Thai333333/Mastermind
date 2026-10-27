@@ -14,11 +14,13 @@ class App:
         self.essai = 0
         
         # Création des variables de gestion pour l'affichage
-        self.ecran_fin_pret = False
+        self.menu = True
         self.ecran_menu_pret = False
+        self.ecran_aide_pret = False
+        self.ecran_fin_pret = False
         self.gagner = False
         self.perdu = False
-        self.menu = True
+        self.aide = False
         self.jeu = False
 
         # Génération de la combinaison
@@ -45,6 +47,21 @@ class App:
                                                 Class.Texte(None, None, None, None), 
                                                 Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
                                                ]
+        self.texte_aide: tuple[str] = (
+            "- Votre but est de deviner la combinaison de",
+            "  couleurs choisi par l'ordinateur",
+            "- Cliquer sur les formes colorees pour composer",
+            "  votre proposition",
+            "- Une fois votre proposition complete, appuyer",
+            '  sur le bouton "valider"',
+            "- Un resultat s'affiche a cote de votre",
+            "  proposition a la suite des precedentes",
+            "- Le premier indique le nombre de couleurs",
+            "  qui sont biens placees et le deuxieme le",
+            "  nombre qui sont males placees",
+            "- Si vous obtenez un score de 40, bien joue",
+            "  vous avez gagne",
+        )
 
         # Lancement du jeu
         pyxel.run(self.update,self.draw)
@@ -73,10 +90,12 @@ class App:
             if not self.ecran_menu_pret:
                 self.liste_forme = [
                                     Class.Forme("cercle", 11, 125, 125, 20),
-                                    Class.Forme("triangle", 7, 117, 113 , x_2=117, y_2=137, x_3=137, y_3=125)
+                                    Class.Forme("triangle", 7, 117, 113 , x_2=117, y_2=137, x_3=137, y_3=125),
+                                    Class.Forme("cercle", 11, 230, 230, 12)
                                     ]
                 self.liste_texte_police = [
-                                            Police.PoliceBitmap((250 - len("Mastermind") * 8 * 2) // 2, 40, "Mastermind", 0, 2)
+                                            Police.PoliceBitmap((250 - len("Mastermind") * 8 * 2) // 2, 40, "Mastermind", 0, 2),
+                                            Police.PoliceBitmap(225, 223, "?", 7)
                                             ]
                 self.ecran_menu_pret = True
 
@@ -91,6 +110,40 @@ class App:
                 self.menu = False
                 self.jeu = True
                 self.ecran_menu_pret = False
+
+            if(
+                Geometrie.pythagore((pyxel.mouse_x-230),(pyxel.mouse_y-230)) <= 12
+                and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
+            ):
+                self.liste_forme.clear()
+                self.liste_texte_police.clear()
+                self.menu = False
+                self.ecran_menu_pret = False
+                self.aide = True
+
+        # Gestion de l'aide
+        if self.aide:
+            if not self.ecran_aide_pret:
+                self.liste_forme.extend([
+                    Class.Forme("rectangle", 6, 20, 20, 210, 210),
+                    Class.Forme("rectangle", 8, 210, 20, 20, 20)
+                    ])
+                self.liste_texte_police.extend([
+                    Police.PoliceBitmap(65, 25, "COMMENT JOUER", 0),
+                    Police.PoliceBitmap(215, 22, "X", 0)
+                    ])
+                self.ecran_aide_pret = True
+
+            if (
+                210 <= pyxel.mouse_x <= 230
+                and 20 <= pyxel.mouse_y <= 40
+                and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
+            ):
+                self.aide = False
+                self.menu = True
+                self.ecran_aide_pret = False
+                self.liste_texte_police.clear()
+                self.liste_forme.clear()
 
         # Lancement du jeu et gestion
         if self.jeu:
@@ -202,11 +255,21 @@ class App:
         pyxel.mouse(True)
 
         if self.menu:
+            for forme in self.liste_forme:
+                forme.affichage()
+
             for texte in self.liste_texte_police:
                 texte.affichage()
 
+        if self.aide:
             for forme in self.liste_forme:
                 forme.affichage()
+
+            for texte in self.liste_texte_police:
+                texte.affichage()
+
+            for index, ligne in enumerate(self.texte_aide):
+                pyxel.text(27, 47 + index * 14, ligne, 0)
 
         if self.jeu:
             # Placement des boutons colorés
