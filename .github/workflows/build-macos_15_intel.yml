@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    # macos-14 est un runner Apple Silicon (arm64)
+    # macos-15-intel est un runner Apple Silicon (arm64)
     runs-on: macos-15-intel
 
     steps:
