@@ -1,6 +1,5 @@
 import pickle
 import os
-import Projet_mastermind_graphique
 import random
 import Class
 
@@ -9,7 +8,7 @@ class IA:
     def __init__(self) -> None:
         self.poids = {}
 
-        if os.path.exists("donnees.pkl"):
+        if os.path.exists("donnees_IA.pkl"):
              self.charger()
 
         else:
@@ -19,7 +18,7 @@ class IA:
  
     def charger(self) -> None:
         
-        with open("donnees.pkl", "rb") as fichier :
+        with open("donnees_IA.pkl", "rb") as fichier :
             self.poids = pickle.load(fichier)
         
     def creer_possibilite(self) -> None:
@@ -32,7 +31,7 @@ class IA:
                         self.poids[actions] = 1.0
 
     def sauvegarder(self) -> None:
-        with open("donnees.pkl", "wb") as fichier:
+        with open("donnees_IA.pkl", "wb") as fichier:
             pickle.dump(self.poids, fichier)
 
     def entrainement(self) -> tuple:
@@ -46,3 +45,5 @@ class IA:
 
     def combinaison_possibles(self) -> list:
         self.combinaison_possibles = []
+
+IA()

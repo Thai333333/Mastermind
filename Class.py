@@ -1,3 +1,5 @@
+from tkinter import Variable
+
 import pyxel
 import random
 
@@ -162,7 +164,7 @@ class Comparateur:
     def utilisation_IA(self, code_secret : tuple, action : tuple) -> None:
         self.code_secret = code_secret
         self.action = action
-        self.IA = True
+        self.IA : Variable = True
         self.bien_place = 0
         self.mal_place = 0
         self.liste_proposition = CodeSecret().liste_combinaison
@@ -174,6 +176,7 @@ class Comparateur:
                 secret.couleur == proposition.couleur
                 for secret, proposition in zip(self.code_secret, self.liste_proposition)
             )
+            
         # Pour utiliser avec l'IA
         else :
             self.bien_place = sum(
@@ -197,6 +200,7 @@ class Comparateur:
                 ):
                     self.mal_place += 1
                     couleurs_restantes.remove(proposition.couleur)
+
         # Pour utiliser avec l'IA
         else :
             couleurs_restantes = [
