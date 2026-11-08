@@ -227,7 +227,7 @@ class Comparateur:
 
             self.compte_historique += 1
             return Texte(self.texte_x, self.texte_y, self.texte, self.texte_couleur)
-
+        
+        # Genérer un résultat pour l'IA (seulement les valeurs et pas du texte)
         else:
-            self.utilisation_IA(self.code_secret)
             return self.analyser_bien_place(), self.analyser_mal_place()
