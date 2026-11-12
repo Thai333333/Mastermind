@@ -142,7 +142,7 @@ class CodeSecret:
 
 class Comparateur:
 
-    def __init__(self, code_secret : list[Bouton], compte_historique = None, IA = False) -> None:
+    def __init__(self, code_secret : list, compte_historique = None, IA = False) -> None:
         self.code_secret = code_secret
         self.compte_historique = compte_historique
         self.IA = IA
@@ -218,7 +218,7 @@ class Comparateur:
                     couleurs_restantes.remove(proposition)
         return self.mal_place
 
-    def generer_resultat(self, proposition : list[Bouton]) -> Texte | tuple[int, int]:
+    def generer_resultat(self, proposition : list):
         if not self.IA:
             self.initialiser_les_variables(proposition)
             self.texte = str(self.analyser_bien_place()) + str(self.analyser_mal_place())

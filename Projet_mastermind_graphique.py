@@ -36,17 +36,17 @@ class App:
         self.liste_boutons_clique: list[Class.Bouton] = []
         self.liste_historique_propositions_bouton: list[list[Class.Bouton]] = []
         self.liste_historique_propositions_barette: list[Class.Barette] = []
-        self.liste_forme: list[Class.Forme] = [
-                                                Class.Forme("cercle", 11, 125, 125, 20),
-                                                Class.Forme("triangle", 7, 117, 113 , x_2=117, y_2=137, x_3=137, y_3=125)
-                                                ]
-        self.liste_texte_police: list[Police.PoliceBitmap] = [
+        self.formes: dict[str, Class.Forme] = {
+            "menu_jouer_cercle": Class.Forme("cercle", 11, 125, 125, 20),
+            "menu_jouer_triangle": Class.Forme("triangle", 7, 117, 113, x_2=117, y_2=137, x_3=137, y_3=125),
+        }
+        self.textes_police: list[Police.PoliceBitmap] = [
                                                             Police.PoliceBitmap((250 - len("Mastermind") * 8 * 2) // 2, 40, "Mastermind", 0, 2)
                                                             ]
-        self.liste_texte: list[Class.Texte] = [
-                                                Class.Texte(None, None, None, None), 
-                                                Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
-                                               ]
+        self.textes: dict[str, Class.Texte] = {
+            "valider": Class.Texte(None, None, None, None),
+            "essai": Class.Texte(110, 5, "Essai:" + str(self.essai), 0),
+        }
         self.texte_aide: tuple[str] = (
             "- Votre but est de deviner la combinaison de",
             "  couleurs choisi par l'ordinateur",
@@ -75,12 +75,12 @@ class App:
         self.essai = 0
         self.liste_historique_propositions_barette.clear()
         self.liste_historique_propositions_bouton.clear()
-        self.liste_forme.clear()
-        self.liste_texte_police.clear()
-        self.liste_texte = [
-                            Class.Texte(None, None, None, None), 
-                            Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
-                            ]
+        self.formes.clear()
+        self.textes_police.clear()
+        self.textes = {
+            "valider": Class.Texte(None, None, None, None),
+            "essai": Class.Texte(110, 5, "Essai:" + str(self.essai), 0),
+        }
 
     # Fonctions calcul update et graphique draw
     def update(self) -> None:
@@ -88,12 +88,12 @@ class App:
         # Gestion du menu
         if self.menu:
             if not self.ecran_menu_pret:
-                self.liste_forme = [
-                                    Class.Forme("cercle", 11, 125, 125, 20),
-                                    Class.Forme("triangle", 7, 117, 113 , x_2=117, y_2=137, x_3=137, y_3=125),
-                                    Class.Forme("cercle", 11, 230, 230, 12)
-                                    ]
-                self.liste_texte_police = [
+                self.formes = {
+                    "menu_jouer_cercle": Class.Forme("cercle", 11, 125, 125, 20),
+                    "menu_jouer_triangle": Class.Forme("triangle", 7, 117, 113, x_2=117, y_2=137, x_3=137, y_3=125),
+                    "menu_aide": Class.Forme("cercle", 11, 230, 230, 12),
+                }
+                self.textes_police = [
                                             Police.PoliceBitmap((250 - len("Mastermind") * 8 * 2) // 2, 40, "Mastermind", 0, 2),
                                             Police.PoliceBitmap(225, 223, "?", 7)
                                             ]
@@ -105,8 +105,8 @@ class App:
                 and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
             ):
                 self.lancer_une_partie()
-                self.liste_forme.clear()
-                self.liste_texte_police.clear()
+                self.formes.clear()
+                self.textes_police.clear()
                 self.menu = False
                 self.jeu = True
                 self.ecran_menu_pret = False
@@ -115,8 +115,8 @@ class App:
                 Geometrie.pythagore((pyxel.mouse_x-230),(pyxel.mouse_y-230)) <= 12
                 and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
             ):
-                self.liste_forme.clear()
-                self.liste_texte_police.clear()
+                self.formes.clear()
+                self.textes_police.clear()
                 self.menu = False
                 self.ecran_menu_pret = False
                 self.aide = True
@@ -124,11 +124,11 @@ class App:
         # Gestion de l'aide
         if self.aide:
             if not self.ecran_aide_pret:
-                self.liste_forme.extend([
-                    Class.Forme("rectangle", 6, 20, 20, 210, 210),
-                    Class.Forme("rectangle", 8, 210, 20, 20, 20)
-                    ])
-                self.liste_texte_police.extend([
+                self.formes.update({
+                    "aide_fond": Class.Forme("rectangle", 6, 20, 20, 210, 210),
+                    "aide_fermer": Class.Forme("rectangle", 8, 210, 20, 20, 20),
+                })
+                self.textes_police.extend([
                     Police.PoliceBitmap(65, 25, "COMMENT JOUER", 0),
                     Police.PoliceBitmap(215, 22, "X", 0)
                     ])
@@ -142,8 +142,8 @@ class App:
                 self.aide = False
                 self.menu = True
                 self.ecran_aide_pret = False
-                self.liste_texte_police.clear()
-                self.liste_forme.clear()
+                self.textes_police.clear()
+                self.formes.clear()
 
         # Lancement du jeu et gestion
         if self.jeu:
@@ -154,9 +154,9 @@ class App:
                     # Gérer le clic sur le bouton
                     self.liste_boutons_clique.append(Class.Bouton(couleur, len(self.liste_boutons_clique), self.essai))
 
-            if len(self.liste_boutons_clique) == 4 and not self.liste_forme:
-                self.liste_forme.append(Class.Forme("rectangle", 0, 203, 162, 40, 20))
-                self.liste_texte[0] = Class.Texte(210, 168, "Valider", 7)
+            if len(self.liste_boutons_clique) == 4 and not self.formes:
+                self.formes["bouton_valider"] = Class.Forme("rectangle", 0, 203, 162, 40, 20)
+                self.textes["valider"] = Class.Texte(210, 168, "Valider", 7)
 
             # Valider la proposition lorsque le bouton est cliqué
             if (
@@ -174,10 +174,11 @@ class App:
                 self.essai += 1
 
                 # Ajouter le texte à afficher
-                self.liste_texte.append(self.comparateur.generer_resultat(self.liste_boutons_clique))
+                cle_resultat = f"resultat_{self.essai}"
+                self.textes[cle_resultat] = self.comparateur.generer_resultat(self.liste_boutons_clique)
 
                 # Gestion des conditions de victoire
-                if self.liste_texte[-1].texte == "40" and self.essai <= 10:
+                if self.textes[cle_resultat].texte == "40" and self.essai <= 10:
                     self.gagner = True
 
                 elif self.essai >=10:
@@ -185,9 +186,9 @@ class App:
                     
                 # Réinitialiser les boutons cliqués et compte du nombre d'essai
                 self.liste_boutons_clique.clear()
-                self.liste_forme.clear()
-                self.liste_texte[0] = Class.Texte(None, None, None, None)
-                self.liste_texte[1] = Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
+                self.formes.clear()
+                self.textes["valider"] = Class.Texte(None, None, None, None)
+                self.textes["essai"] = Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
 
         # Gestion de l'écran de fin
 
@@ -201,19 +202,19 @@ class App:
             if not self.ecran_fin_pret:
                 self.ecran_fin_pret = True
 
-                self.liste_forme.append(Class.Forme("rectangle", 11, 30, 220, 85, 22))
-                self.liste_forme.append(Class.Forme("rectangle", 13, 135, 220, 85, 22))
+                self.formes["fin_rejouer"] = Class.Forme("rectangle", 11, 30, 220, 85, 22)
+                self.formes["fin_menu"] = Class.Forme("rectangle", 13, 135, 220, 85, 22)
 
-                self.liste_texte_police.append(Police.PoliceBitmap(41, 223, "Rejouer", 7))
-                self.liste_texte_police.append(Police.PoliceBitmap(159, 223, "Menu", 7))
+                self.textes_police.append(Police.PoliceBitmap(41, 223, "Rejouer", 7))
+                self.textes_police.append(Police.PoliceBitmap(159, 223, "Menu", 7))
 
                 if self.gagner:
-                    self.liste_texte_police.append(Police.PoliceBitmap(75, 65, "Bien joué !", 0))
-                    self.liste_texte_police.append(Police.PoliceBitmap(48, 85, "Vous avez gagné !", 0))
+                    self.textes_police.append(Police.PoliceBitmap(75, 65, "Bien joué !", 0))
+                    self.textes_police.append(Police.PoliceBitmap(48, 85, "Vous avez gagné !", 0))
                     
                 else:
-                    self.liste_texte_police.append(Police.PoliceBitmap(84, 65, "Dommage !", 0))
-                    self.liste_texte_police.append(Police.PoliceBitmap(48, 85, "Vous avez perdu !", 0))
+                    self.textes_police.append(Police.PoliceBitmap(84, 65, "Dommage !", 0))
+                    self.textes_police.append(Police.PoliceBitmap(48, 85, "Vous avez perdu !", 0))
 
             if (
                 30 <= pyxel.mouse_x <= 115
@@ -255,17 +256,17 @@ class App:
         pyxel.mouse(True)
 
         if self.menu:
-            for forme in self.liste_forme:
+            for forme in self.formes.values():
                 forme.affichage()
 
-            for texte in self.liste_texte_police:
+            for texte in self.textes_police:
                 texte.affichage()
 
         if self.aide:
-            for forme in self.liste_forme:
+            for forme in self.formes.values():
                 forme.affichage()
 
-            for texte in self.liste_texte_police:
+            for texte in self.textes_police:
                 texte.affichage()
 
             for index, ligne in enumerate(self.texte_aide):
@@ -285,11 +286,11 @@ class App:
                 bouton.affichage()
 
             # Affichage du fond du bouton valider
-            for forme in self.liste_forme:
+            for forme in self.formes.values():
                 forme.affichage()
 
             # Affichage du texte
-            for texte in self.liste_texte:
+            for texte in self.textes.values():
                 texte.affichage()
 
             # Placement des barettes pour l'historique
@@ -308,17 +309,17 @@ class App:
             for bouton in self.liste_combinaison_secrete:
                 bouton.affichage()
 
-            self.liste_texte[1].affichage()
+            self.textes["essai"].affichage()
 
-            for forme in self.liste_forme:
+            for forme in self.formes.values():
                 forme.affichage()
                 
             if self.gagner:
-                for texte in self.liste_texte_police:
+                for texte in self.textes_police:
                     texte.affichage()
                 
             else:
-                for texte in self.liste_texte_police:
+                for texte in self.textes_police:
                     texte.affichage()
 
 App()

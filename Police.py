@@ -92,7 +92,7 @@ class PoliceBitmap:
 
         self.hauteur_ligne = hauteur_case
 
-    def recuperer_element(self, caractere: str) -> tuple[int, int, int, int, int]:
+    def recuperer_element(self, caractere: str) -> tuple:
         """Retourne u, v, largeur, hauteur et avance du caractère dans l'atlas."""
         if len(caractere) != 1:
             raise ValueError("Il faut fournir exactement un caractère.")
