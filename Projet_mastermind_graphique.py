@@ -15,7 +15,7 @@ class App:
         
         # Création des variables de gestion pour l'affichage
         self.menu = True
-        self.ecran_menu_en_jeu = False
+        self.ecran_menu_en_jeu_pret = False
         self.ecran_menu_pret = False
         self.ecran_aide_pret = False
         self.ecran_fin_pret = False
@@ -206,7 +206,7 @@ class App:
             ):
                 self.menu_en_jeu = True
                 self.jeu = False
-                if not self.ecran_menu_en_jeu:
+                if not self.ecran_menu_en_jeu_pret:
                     self.formes.clear()
                     self.formes["menu_en_jeu_fond"] = Class.Forme("rectangle", 6, 20, 20, 210, 210)
                     self.formes["menu_en_jeu_continuer"] = Class.Forme("rectangle", 3, 80, 70, 89, 22)
@@ -215,7 +215,7 @@ class App:
                     self.textes_police.append(Police.PoliceBitmap(84, 73, "Continuer", 7))
                     self.textes_police.append(Police.PoliceBitmap(93, 113, "Rejouer", 7))
                     self.textes_police.append(Police.PoliceBitmap(107, 153, "Menu", 7))
-                    self.ecran_menu_en_jeu = True
+                    self.ecran_menu_en_jeu_pret = True
 
             # Valider la proposition lorsque le bouton est cliqué
             if (
@@ -258,7 +258,7 @@ class App:
         ):
             self.menu_en_jeu = False
             self.jeu = True
-            self.ecran_menu_en_jeu = False
+            self.ecran_menu_en_jeu_pret = False
             self.formes = {
                 "effacer_forme": Class.Forme("rectangle", 0, 5, 162, 40, 20),
                 "menu_en_jeu": Class.Forme("rectangle", 13, 230, 242, 20, 20),
@@ -275,11 +275,10 @@ class App:
             and 110 <= pyxel.mouse_y <= 132
             and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
         ):
-            self.gagner = False
             self.ecran_fin_pret = False
             self.jeu = True
             self.menu_en_jeu = False
-            self.ecran_menu_en_jeu = False
+            self.ecran_menu_en_jeu_pret = False
             self.reinitialiser_les_variables()
             self.lancer_une_partie()
 
@@ -292,6 +291,8 @@ class App:
         ):
             self.menu = True
             self.ecran_fin_pret = False
+            self.menu_en_jeu = False
+            self.ecran_menu_en_jeu_pret = False
             self.reinitialiser_les_variables()
 
         # Gestion de l'écran de fin
@@ -305,6 +306,7 @@ class App:
 
             if not self.ecran_fin_pret:
                 self.ecran_fin_pret = True
+                self.formes.clear()
 
                 self.formes["fin_rejouer"] = Class.Forme("rectangle", 11, 30, 220, 85, 22)
                 self.formes["fin_menu"] = Class.Forme("rectangle", 13, 135, 220, 85, 22)
