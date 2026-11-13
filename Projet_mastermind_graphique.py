@@ -109,6 +109,25 @@ class App:
                                             ]
                 self.ecran_menu_pret = True
 
+            
+            # Agrandissement du bouton lorsque la souris est dessus
+            if (
+                Geometrie.pythagore((pyxel.mouse_x-125), (pyxel.mouse_y-125)) <= 20
+            ):
+                self.formes["menu_jouer_cercle"] = Class.Forme("cercle", 11, 125, 125, 22)
+                self.formes["menu_jouer_triangle"] = Class.Forme("triangle", 7, 116, 112, x_2=116, y_2=138, x_3=138, y_3=125)
+            else :
+                self.formes["menu_jouer_cercle"] = Class.Forme("cercle", 11, 125, 125, 20)
+                self.formes["menu_jouer_triangle"] = Class.Forme("triangle", 7, 117, 113, x_2=117, y_2=137, x_3=137, y_3=125)
+
+            # Agrandissement du bouton quand la souris est dessus
+            if(
+                Geometrie.pythagore((pyxel.mouse_x-230),(pyxel.mouse_y-230)) <= 12
+            ):
+                self.formes["menu_aide"] = Class.Forme("cercle", 11, 230, 230, 14)
+            else :
+                self.formes["menu_aide"] = Class.Forme("cercle", 11, 230, 230, 12)
+
             # Vérification du clique sur le bouton pour lancer le jeu
             if (
                 Geometrie.pythagore((pyxel.mouse_x-125), (pyxel.mouse_y-125)) <= 20
@@ -131,6 +150,7 @@ class App:
                 self.menu = False
                 self.ecran_menu_pret = False
                 self.aide = True
+            
 
         # Gestion de l'aide
         if self.aide:
