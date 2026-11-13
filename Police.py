@@ -5,7 +5,7 @@ class PoliceBitmap:
     """Convertit un fichier TTF en glyphes utilisables avec Pyxel."""
 
     CARACTERES_PAR_DEFAUT = "".join(chr(code) for code in range(32, 127)) + (
-        "éèêëàâùûôîïçÉÈÊËÀÂÙÛÔÎÏÇ"
+        "éèêëàâùûôîïçÉÈÊËÀÂÙÛÔÎÏÇ="
     )
 
     def __init__(self,

@@ -1,5 +1,3 @@
-from tkinter import Variable
-
 import pyxel
 import random
 
@@ -12,7 +10,7 @@ class Bouton:
         self.compte_historique = compte_historique
 
         self.x = 0
-        self.y = 220
+        self.y = 212
         self.largeur = 5
         self.hauteur = 5
         self.image = 0
@@ -165,7 +163,7 @@ class Comparateur:
     def utilisation_IA(self, code_secret : tuple, action : tuple) -> None:
         self.code_secret = code_secret
         self.action = action
-        self.IA : Variable = True
+        self.IA : bool = True
         self.bien_place = 0
         self.mal_place = 0
         self.liste_proposition = CodeSecret().liste_combinaison
