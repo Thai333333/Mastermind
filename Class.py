@@ -10,7 +10,7 @@ class Bouton:
         self.compte_historique = compte_historique
 
         self.x = 0
-        self.y = 220
+        self.y = 212
         self.largeur = 5
         self.hauteur = 5
         self.image = 0
@@ -134,15 +134,17 @@ class CodeSecret:
         self.liste_combinaison : list[Bouton] = []
         self.liste_boutons: list[Bouton] = ListeBouton().liste_bouton
 
+        # Les tirages sont indépendants : une même couleur peut apparaître plusieurs fois.
         for i in range(4):
             bouton_tire = random.choice(self.liste_boutons)
             self.liste_combinaison.append(Bouton(bouton_tire.couleur, i, None))
 
 class Comparateur:
 
-    def __init__(self, code_secret : list[Bouton], compte_historique) -> None:
+    def __init__(self, code_secret : list, compte_historique = None, IA = False) -> None:
         self.code_secret = code_secret
         self.compte_historique = compte_historique
+        self.IA = IA
 
         self.bien_place = 0
         self.mal_place = 0
@@ -150,48 +152,88 @@ class Comparateur:
         self.texte_x = 120
         self.texte_y = 0
         self.texte_couleur = 0
-        self.liste_proposition: list[Bouton] = []
+        self.liste_proposition : list[Bouton] = []
 
     # On réinitialise à chaque calcul les variables 
     def initialiser_les_variables(self, proposition) -> None:
         self.bien_place = 0
         self.mal_place = 0
         self.liste_proposition = list(proposition)
+
+    def utilisation_IA(self, code_secret : tuple, action : tuple) -> None:
+        self.code_secret = code_secret
+        self.action = action
+        self.IA : bool = True
+        self.bien_place = 0
+        self.mal_place = 0
+        self.liste_proposition = CodeSecret().liste_combinaison
+        self.generer_resultat(self.liste_proposition)
         
     def analyser_bien_place(self) -> int:
-        self.bien_place = sum(
-            secret.couleur == proposition.couleur
-            for secret, proposition in zip(self.code_secret, self.liste_proposition)
-        )
+        if not self.IA:
+            # Compte les couleurs identiques à la même position dans les deux combinaisons.
+            self.bien_place = sum(
+                secret.couleur == proposition.couleur
+                for secret, proposition in zip(self.code_secret, self.liste_proposition)
+            )
+            
+        # Pour utiliser avec l'IA
+        else :
+            self.bien_place = sum(
+                secret == proposition 
+                for secret, proposition in zip(self.code_secret, self.liste_proposition)
+            )
         return self.bien_place
 
     def analyser_mal_place(self) -> int:
-        couleurs_restantes = [
-            secret.couleur
-            for secret, proposition in zip(self.code_secret, self.liste_proposition)
-            if secret.couleur != proposition.couleur
-        ]
+        if not self.IA :
+            couleurs_restantes = [
+                secret.couleur
+                for secret, proposition in zip(self.code_secret, self.liste_proposition)
+                if secret.couleur != proposition.couleur
+            ]
 
-        for index, proposition in enumerate(self.liste_proposition):
-            if (
-                proposition.couleur != self.code_secret[index].couleur
-                and proposition.couleur in couleurs_restantes
-            ):
-                self.mal_place += 1
-                couleurs_restantes.remove(proposition.couleur)
+            # Retire chaque couleur trouvée pour ne pas compter plusieurs fois les doublons.
+            for index, proposition in enumerate(self.liste_proposition):
+                if (
+                    proposition.couleur != self.code_secret[index].couleur
+                    and proposition.couleur in couleurs_restantes
+                ):
+                    self.mal_place += 1
+                    couleurs_restantes.remove(proposition.couleur)
+
+        # Pour utiliser avec l'IA
+        else :
+            couleurs_restantes = [
+                secret
+                for secret, proposition in zip(self.code_secret, self.liste_proposition)
+                if secret != proposition
+            ]
+
+            for index, proposition in enumerate(self.liste_proposition):
+                if (
+                    proposition != self.code_secret[index]
+                    and proposition in couleurs_restantes
+                ):
+                    self.mal_place += 1
+                    couleurs_restantes.remove(proposition)
         return self.mal_place
 
-            
+    def generer_resultat(self, proposition : list):
+        if not self.IA:
+            self.initialiser_les_variables(proposition)
+            # Le premier chiffre indique les couleurs bien placées, le second les mal placées.
+            self.texte = str(self.analyser_bien_place()) + str(self.analyser_mal_place())
+            if self.compte_historique >= 5:
+                self.texte_x = 155
+                self.texte_y = 14 + (self.compte_historique - 5) * 30
+            else:
+                self.texte_x = 90
+                self.texte_y = 14 + self.compte_historique * 30
 
-    def generer_resultat(self, proposition : list[Bouton]) -> Texte:
-        self.initialiser_les_variables(proposition)
-        self.texte = str(self.analyser_bien_place()) + str(self.analyser_mal_place())
-        if self.compte_historique >= 5:
-            self.texte_x = 155
-            self.texte_y = 14 + (self.compte_historique - 5) * 30
+            self.compte_historique += 1
+            return Texte(self.texte_x, self.texte_y, self.texte, self.texte_couleur)
+        
+        # Genérer un résultat pour l'IA (seulement les valeurs et pas du texte)
         else:
-            self.texte_x = 90
-            self.texte_y = 14 + self.compte_historique * 30
-
-        self.compte_historique += 1
-        return Texte(self.texte_x, self.texte_y, self.texte, self.texte_couleur)
+            return self.analyser_bien_place(), self.analyser_mal_place()
