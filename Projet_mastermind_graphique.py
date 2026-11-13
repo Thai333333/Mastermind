@@ -75,11 +75,14 @@ class App:
         self.essai = 0
         self.liste_historique_propositions_barette.clear()
         self.liste_historique_propositions_bouton.clear()
-        self.formes.clear()
         self.textes_police.clear()
+        self.formes = {
+                    "effacer_forme": Class.Forme("rectangle", 0, 5, 162, 40, 20)
+                    }
         self.textes = {
             "valider": Class.Texte(None, None, None, None),
             "essai": Class.Texte(110, 5, "Essai:" + str(self.essai), 0),
+            "effacer": Class.Texte(12, 169, "Effacer", 7),
         }
 
     # Fonctions calcul update et graphique draw
@@ -104,13 +107,14 @@ class App:
                 Geometrie.pythagore((pyxel.mouse_x-125), (pyxel.mouse_y-125)) <= 20
                 and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
             ):
+                self.reinitialiser_les_variables()
                 self.lancer_une_partie()
-                self.formes.clear()
                 self.textes_police.clear()
                 self.menu = False
                 self.jeu = True
                 self.ecran_menu_pret = False
 
+            # Vérification du clique sur le bouton pour lancer l'aide
             if(
                 Geometrie.pythagore((pyxel.mouse_x-230),(pyxel.mouse_y-230)) <= 12
                 and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
@@ -123,6 +127,7 @@ class App:
 
         # Gestion de l'aide
         if self.aide:
+            # Preparation de l'affichage de l'aide
             if not self.ecran_aide_pret:
                 self.formes.update({
                     "aide_fond": Class.Forme("rectangle", 6, 20, 20, 210, 210),
@@ -134,6 +139,7 @@ class App:
                     ])
                 self.ecran_aide_pret = True
 
+            # Vérification du clique sur le bouton pour fermer l'aide
             if (
                 210 <= pyxel.mouse_x <= 230
                 and 20 <= pyxel.mouse_y <= 40
@@ -147,6 +153,7 @@ class App:
 
         # Lancement du jeu et gestion
         if self.jeu:
+
             # Vérifie et crée un bouton sur la barette si cliqué
             for couleur, bouton in enumerate(self.liste_boutons):
                 bouton.calcul_bar_du_bas_position()
@@ -154,7 +161,14 @@ class App:
                     # Gérer le clic sur le bouton
                     self.liste_boutons_clique.append(Class.Bouton(couleur, len(self.liste_boutons_clique), self.essai))
 
-            if len(self.liste_boutons_clique) == 4 and not self.formes:
+            """
+            if (len(self.liste_boutons_clique) > 0
+                and
+                ):
+                self.liste_boutons_clique.pop()
+                """
+
+            if len(self.liste_boutons_clique) == 4 and "bouton_valider" not in self.formes:
                 self.formes["bouton_valider"] = Class.Forme("rectangle", 0, 203, 162, 40, 20)
                 self.textes["valider"] = Class.Texte(210, 168, "Valider", 7)
 
@@ -186,7 +200,7 @@ class App:
                     
                 # Réinitialiser les boutons cliqués et compte du nombre d'essai
                 self.liste_boutons_clique.clear()
-                self.formes.clear()
+                self.formes.pop("bouton_valider")
                 self.textes["valider"] = Class.Texte(None, None, None, None)
                 self.textes["essai"] = Class.Texte(110, 5, "Essai:" + str(self.essai), 0)
 
@@ -216,6 +230,7 @@ class App:
                     self.textes_police.append(Police.PoliceBitmap(84, 65, "Dommage !", 0))
                     self.textes_police.append(Police.PoliceBitmap(48, 85, "Vous avez perdu !", 0))
 
+            # Rejouer une partie
             if (
                 30 <= pyxel.mouse_x <= 115
                 and 220 <= pyxel.mouse_y <= 242
@@ -228,6 +243,7 @@ class App:
                 self.reinitialiser_les_variables()
                 self.lancer_une_partie()
 
+            # Retour au menu de départ
             if (
                 135 <= pyxel.mouse_x <= 220
                 and 220 <= pyxel.mouse_y <= 242

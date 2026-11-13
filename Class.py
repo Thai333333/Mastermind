@@ -136,6 +136,7 @@ class CodeSecret:
         self.liste_combinaison : list[Bouton] = []
         self.liste_boutons: list[Bouton] = ListeBouton().liste_bouton
 
+        # Les tirages sont indépendants : une même couleur peut apparaître plusieurs fois.
         for i in range(4):
             bouton_tire = random.choice(self.liste_boutons)
             self.liste_combinaison.append(Bouton(bouton_tire.couleur, i, None))
@@ -172,6 +173,7 @@ class Comparateur:
         
     def analyser_bien_place(self) -> int:
         if not self.IA:
+            # Compte les couleurs identiques à la même position dans les deux combinaisons.
             self.bien_place = sum(
                 secret.couleur == proposition.couleur
                 for secret, proposition in zip(self.code_secret, self.liste_proposition)
@@ -193,6 +195,7 @@ class Comparateur:
                 if secret.couleur != proposition.couleur
             ]
 
+            # Retire chaque couleur trouvée pour ne pas compter plusieurs fois les doublons.
             for index, proposition in enumerate(self.liste_proposition):
                 if (
                     proposition.couleur != self.code_secret[index].couleur
@@ -221,6 +224,7 @@ class Comparateur:
     def generer_resultat(self, proposition : list):
         if not self.IA:
             self.initialiser_les_variables(proposition)
+            # Le premier chiffre indique les couleurs bien placées, le second les mal placées.
             self.texte = str(self.analyser_bien_place()) + str(self.analyser_mal_place())
             if self.compte_historique >= 5:
                 self.texte_x = 155
