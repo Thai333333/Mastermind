@@ -19,6 +19,7 @@ class App:
         self.mode_2_joueur = False
         self.ecran_menu_en_jeu_pret = False
         self.ecran_menu_mode_pret = False
+        self.combinaison_prete = False
         self.ecran_menu_pret = False
         self.ecran_aide_pret = False
         self.ecran_fin_pret = False
@@ -174,7 +175,7 @@ class App:
         if self.menu_mode:
             #Préparation de l'écran
             if not self.ecran_menu_mode_pret:
-                self.ecran_menu_en_jeu_pret = True
+                self.ecran_menu_mode_pret = True
                 self.formes.update({
                     "menu_mode_fond": Class.Forme("rectangle", 6, 20, 20, 210, 210),
                     "menu_mode_selectionner": None,
@@ -391,11 +392,26 @@ class App:
             and 150 <= pyxel.mouse_y <= 172
             and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
         ):
+            self.reinitialiser_les_variables()
             self.menu = True
             self.ecran_fin_pret = False
             self.menu_en_jeu = False
             self.ecran_menu_en_jeu_pret = False
-            self.reinitialiser_les_variables()
+            self.formes = {
+                "menu_jouer_cercle": Class.Forme("cercle", 11, 125, 125, 20),
+                "menu_jouer_triangle": Class.Forme(
+                    "triangle", 7, 117, 113, x_2=117, y_2=137, x_3=137, y_3=125
+                ),
+                "menu_aide": Class.Forme("cercle", 11, 230, 230, 12),
+                "menu_mode": Class.Forme("rectangle", 13, 80, 150, 90, 22),
+            }
+            self.textes_police = [
+                Police.PoliceBitmap((250 - len("Mastermind") * 8 * 2) // 2, 40, "Mastermind", 0, 2),
+                Police.PoliceBitmap(225, 223, "?", 7),
+                Police.PoliceBitmap(107, 153, "Mode", 7),
+            ]
+            self.ecran_menu_pret = True
+            
 
         # Gestion de l'écran de fin
 
