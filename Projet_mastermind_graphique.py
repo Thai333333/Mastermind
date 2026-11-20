@@ -107,13 +107,14 @@ class App:
         self.combinaison_prete = False
         self.liste_historique_propositions_barette.clear()
         self.liste_historique_propositions_bouton.clear()
-        self.textes_police = []
+        self.textes_police = [Police.PoliceBitmap(125, 52, "?",7)]
         self.formes = {
                     "effacer_forme": Class.Forme("rectangle", 0, 5, 162, 40, 20),
                     "menu_en_jeu": Class.Forme("rectangle", 13, 230, 242, 20, 20),
                     "menu_en_jeu_l1": Class.Forme("rectangle", 0, 233, 247, 14, 2),
                     "menu_en_jeu_l2": Class.Forme("rectangle", 0, 233, 252, 14, 2),
                     "menu_en_jeu_l3": Class.Forme("rectangle", 0, 233, 257, 14, 2),
+                    "indice": Class.Forme("cercle", 11, 125, 50, 18),
                     }
         self.textes = {
             "valider": Class.Texte(None, None, None, None),
@@ -402,7 +403,7 @@ class App:
                 "menu_en_jeu_l2": Class.Forme("rectangle", 0, 233, 252, 14, 2),
                 "menu_en_jeu_l3": Class.Forme("rectangle", 0, 233, 257, 14, 2),
             }
-            self.textes_police.clear()
+            self.textes_police = [Police.PoliceBitmap(125, 52, "?",7)]
 
         # Vérifie si le bouton rejouer du menu en jeu est cliqué
         if (
