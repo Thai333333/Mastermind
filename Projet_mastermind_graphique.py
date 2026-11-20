@@ -1,5 +1,5 @@
 # Importation des librairies nécessaires et initialisation de la fenêtre Pyxel
-import pyxel
+import pyxel # type: ignore
 import Class
 import Police
 from Calcul_geometrie import Geometrie
@@ -15,11 +15,17 @@ class App:
         
         # Création des variables de gestion pour l'affichage
         self.menu = True
+        self.mode_1_joueur = True
+        self.mode_2_joueur = False
         self.ecran_menu_en_jeu_pret = False
+        self.ecran_menu_mode_pret = False
+        self.combinaison_prete = False
         self.ecran_menu_pret = False
         self.ecran_aide_pret = False
         self.ecran_fin_pret = False
         self.menu_en_jeu = False
+        self.choix_code = False
+        self.menu_mode = False
         self.gagner = False
         self.perdu = False
         self.aide = False
@@ -69,12 +75,36 @@ class App:
         pyxel.run(self.update,self.draw)
 
     def lancer_une_partie(self):
-        self.liste_combinaison_secrete = Class.CodeSecret().liste_combinaison
-        # Création du comparateur
-        self.comparateur = Class.Comparateur(self.liste_combinaison_secrete, 0)
+        if self.mode_2_joueur:
+        # Le code est choisi par le joueur 1, le comparateur sera créé après sa validation
+            self.choix_code = True
+            self.liste_combinaison_secrete = []
+            self.textes["consigne_1"] = Class.Texte(53, 60, "Joueur 1 : choisissez le code secret", 0)
+            self.textes["consigne_2"] = Class.Texte(53, 72, "Joueur 2 : ne regardez pas l'ecran !", 0)
+        else:
+            self.choix_code = False
+            self.liste_combinaison_secrete = Class.CodeSecret().liste_combinaison
+            self.comparateur = Class.Comparateur(self.liste_combinaison_secrete, 0)
 
+    def valider_code_secret(self):
+        # Transforme les boutons cliqués par le joueur 1 en code secret
+        self.liste_combinaison_secrete = [
+            Class.Bouton(bouton.couleur, ordre, None)
+            for ordre, bouton in enumerate(self.liste_boutons_clique)
+        ]
+        self.comparateur = Class.Comparateur(self.liste_combinaison_secrete, 0)
+        self.choix_code = False
+
+        # On efface le code de l'écran pour le joueur 2
+        self.liste_boutons_clique.clear()
+        self.formes.pop("bouton_valider", None)
+        self.textes["valider"] = Class.Texte(None, None, None, None)
+        self.textes.pop("consigne_1", None)
+        self.textes.pop("consigne_2", None)
+    
     def reinitialiser_les_variables(self):
         self.essai = 0
+        self.combinaison_prete = False
         self.liste_historique_propositions_barette.clear()
         self.liste_historique_propositions_bouton.clear()
         self.textes_police = []
@@ -102,12 +132,45 @@ class App:
                     "menu_jouer_cercle": Class.Forme("cercle", 11, 125, 125, 20),
                     "menu_jouer_triangle": Class.Forme("triangle", 7, 117, 113, x_2=117, y_2=137, x_3=137, y_3=125),
                     "menu_aide": Class.Forme("cercle", 11, 230, 230, 12),
+                    "menu_mode": Class.Forme("rectangle", 13, 80, 150, 90, 22)
                 }
                 self.textes_police = [
                                             Police.PoliceBitmap((250 - len("Mastermind") * 8 * 2) // 2, 40, "Mastermind", 0, 2),
-                                            Police.PoliceBitmap(225, 223, "?", 7)
+                                            Police.PoliceBitmap(225, 223, "?", 7),
+                                            Police.PoliceBitmap(107, 153, "Mode", 7)
                                             ]
                 self.ecran_menu_pret = True
+
+            
+            # Agrandissement du bouton lorsque la souris est dessus
+            if (
+                Geometrie.pythagore((pyxel.mouse_x-125), (pyxel.mouse_y-125)) <= 20
+            ):
+                self.formes["menu_jouer_cercle"] = Class.Forme("cercle", 11, 125, 125, 22)
+                self.formes["menu_jouer_triangle"] = Class.Forme("triangle", 7, 116, 112, x_2=116, y_2=138, x_3=138, y_3=125)
+            else :
+                self.formes["menu_jouer_cercle"] = Class.Forme("cercle", 11, 125, 125, 20)
+                self.formes["menu_jouer_triangle"] = Class.Forme("triangle", 7, 117, 113, x_2=117, y_2=137, x_3=137, y_3=125)
+
+            # Agrandissement du bouton quand la souris est dessus
+            if(
+                Geometrie.pythagore((pyxel.mouse_x-230),(pyxel.mouse_y-230)) <= 12
+            ):
+                self.formes["menu_aide"] = Class.Forme("cercle", 11, 230, 230, 14)
+            else :
+                self.formes["menu_aide"] = Class.Forme("cercle", 11, 230, 230, 12)
+
+            # Vérification du clique sur le bouton pour choisir le mode
+            if (
+                80 <=pyxel.mouse_x <= 170
+                and 150 <= pyxel.mouse_y <= 172
+                and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
+            ):
+                self.formes.clear()
+                self.textes_police.clear()
+                self.menu = False
+                self.ecran_menu_pret = False
+                self.menu_mode = True
 
             # Vérification du clique sur le bouton pour lancer le jeu
             if (
@@ -131,6 +194,70 @@ class App:
                 self.menu = False
                 self.ecran_menu_pret = False
                 self.aide = True
+
+        # Gestion du mode de jeu
+        if self.menu_mode:
+            #Préparation de l'écran
+            if not self.ecran_menu_mode_pret:
+                self.ecran_menu_mode_pret = True
+                self.formes.update({
+                    "menu_mode_fond": Class.Forme("rectangle", 6, 20, 20, 210, 210),
+                    "menu_mode_selectionner": None,
+                    "aide_fermer": Class.Forme("rectangle", 8, 210, 20, 20, 20),
+                    "menu_mode_1_joueur": Class.Forme("rectangle", 11, 80, 50, 90, 22),
+                    "menu_mode_2_joueur": Class.Forme("rectangle", 11, 80, 110, 90, 22),
+                    
+                })
+                self.textes_police.extend([Police.PoliceBitmap(85, 53, "1 Joueur", 7),
+                                           Police.PoliceBitmap(85, 113, "2 Joueur", 7),
+                                           Police.PoliceBitmap(215, 22, "X", 0),])
+            
+            # Vérification du clique pour sélectionner le mode 1 joueur
+            if (
+                80 <= pyxel.mouse_x <= 170
+                and 50 <= pyxel.mouse_y <= 72
+                and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
+            ):
+                self.mode_1_joueur = True
+                self.mode_2_joueur = False
+                self.menu_mode = False
+                self.ecran_menu_mode_pret = False
+                self.menu = True
+                self.formes.clear()
+                self.textes_police.clear()
+
+            #Affichage du mode_actuellement sélectionné
+            if self.mode_1_joueur:
+                self.formes["menu_mode_selectionner"] = Class.Forme("rectangle", 10, 79, 49, 92, 24)
+            elif self.mode_2_joueur:
+                self.formes["menu_mode_selectionner"] = Class.Forme("rectangle", 10, 79, 109, 92, 24)
+
+            # Vérification du clique pour sélectionner le mode 2 joueur
+            if (
+                80 <= pyxel.mouse_x <= 170
+                and 110 <= pyxel.mouse_y <= 132
+                and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
+            ):
+                self.mode_1_joueur = False
+                self.mode_2_joueur = True
+                self.menu_mode = False
+                self.ecran_menu_mode_pret = False
+                self.menu = True
+                self.formes.clear()
+                self.textes_police.clear()
+
+            # Vérification du clique sur le bouton pour fermer l'aide
+            if (
+                210 <= pyxel.mouse_x <= 230
+                and 20 <= pyxel.mouse_y <= 40
+                and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
+            ):
+                self.menu_mode = False
+                self.menu = True
+                self.ecran_aide_pret = False
+                self.ecran_menu_mode_pret = False
+                self.textes_police.clear()
+                self.formes.clear()
 
         # Gestion de l'aide
         if self.aide:
@@ -209,16 +336,25 @@ class App:
                 if not self.ecran_menu_en_jeu_pret:
                     self.formes.clear()
                     self.formes["menu_en_jeu_fond"] = Class.Forme("rectangle", 6, 20, 20, 210, 210)
-                    self.formes["menu_en_jeu_continuer"] = Class.Forme("rectangle", 3, 80, 70, 89, 22)
-                    self.formes["menu_en_jeu_rejouer"] = Class.Forme("rectangle", 11, 80, 110, 89, 22)
-                    self.formes["menu_en_jeu_menu"] = Class.Forme("rectangle", 13, 80, 150, 89, 22)
-                    self.textes_police.append(Police.PoliceBitmap(84, 73, "Continuer", 7))
-                    self.textes_police.append(Police.PoliceBitmap(93, 113, "Rejouer", 7))
-                    self.textes_police.append(Police.PoliceBitmap(107, 153, "Menu", 7))
+                    self.formes["menu_en_jeu_continuer"] = Class.Forme("rectangle", 3, 80, 70, 90, 22)
+                    self.formes["menu_en_jeu_rejouer"] = Class.Forme("rectangle", 11, 80, 110, 90, 22)
+                    self.formes["menu_en_jeu_menu"] = Class.Forme("rectangle", 13, 80, 150, 90, 22)
+                    self.textes_police.extend([Police.PoliceBitmap(84, 73, "Continuer", 7),
+                                              Police.PoliceBitmap(93, 113, "Rejouer", 7),
+                                              Police.PoliceBitmap(107, 153, "Menu", 7)])
                     self.ecran_menu_en_jeu_pret = True
 
+            # Choix de la combianison par le joueur 1
+            if (len(self.liste_boutons_clique) == 4
+                and 203 <= pyxel.mouse_x <= 243
+                and 162 <= pyxel.mouse_y <= 182
+                and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
+                and self.choix_code
+                ):
+                self.valider_code_secret()
+                self.combinaison_prete = True
             # Valider la proposition lorsque le bouton est cliqué
-            if (
+            elif (
                 len(self.liste_boutons_clique) == 4
                 and 203 <= pyxel.mouse_x <= 243
                 and 162 <= pyxel.mouse_y <= 182
@@ -279,6 +415,7 @@ class App:
             self.jeu = True
             self.menu_en_jeu = False
             self.ecran_menu_en_jeu_pret = False
+            self.liste_boutons_clique.clear()
             self.reinitialiser_les_variables()
             self.lancer_une_partie()
 
@@ -289,11 +426,26 @@ class App:
             and 150 <= pyxel.mouse_y <= 172
             and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)
         ):
+            self.reinitialiser_les_variables()
             self.menu = True
             self.ecran_fin_pret = False
             self.menu_en_jeu = False
             self.ecran_menu_en_jeu_pret = False
-            self.reinitialiser_les_variables()
+            self.formes = {
+                "menu_jouer_cercle": Class.Forme("cercle", 11, 125, 125, 20),
+                "menu_jouer_triangle": Class.Forme(
+                    "triangle", 7, 117, 113, x_2=117, y_2=137, x_3=137, y_3=125
+                ),
+                "menu_aide": Class.Forme("cercle", 11, 230, 230, 12),
+                "menu_mode": Class.Forme("rectangle", 13, 80, 150, 90, 22),
+            }
+            self.textes_police = [
+                Police.PoliceBitmap((250 - len("Mastermind") * 8 * 2) // 2, 40, "Mastermind", 0, 2),
+                Police.PoliceBitmap(225, 223, "?", 7),
+                Police.PoliceBitmap(107, 153, "Mode", 7),
+            ]
+            self.ecran_menu_pret = True
+            
 
         # Gestion de l'écran de fin
 
@@ -304,6 +456,7 @@ class App:
             for bouton in self.liste_combinaison_secrete:
                 bouton.calcul_proposition_position()
 
+            
             if not self.ecran_fin_pret:
                 self.ecran_fin_pret = True
                 self.formes.clear()
@@ -363,7 +516,18 @@ class App:
         pyxel.cls(15)
         pyxel.mouse(True)
 
+        # Affichage du menu
         if self.menu:
+            # Affichage des formes
+            for forme in self.formes.values():
+                forme.affichage()
+
+            # Affichage du texte
+            for texte in self.textes_police:
+                texte.affichage()
+
+        # Affichage de la sélection du mode
+        if self.menu_mode:
             for forme in self.formes.values():
                 forme.affichage()
 
@@ -416,6 +580,7 @@ class App:
                 for bouton in proposition:
                     bouton.affichage()
 
+        # Affichage du menu pendant la partie
         if self.menu_en_jeu:
             # Affichage du fond du menu en jeu
             for forme in self.formes.values():
@@ -441,11 +606,11 @@ class App:
             for forme in self.formes.values():
                 forme.affichage()
 
-            # Affichage des textes de fin de partie
+            # Affichage du texte quand le joueur a gagné
             if self.gagner:
                 for texte in self.textes_police:
                     texte.affichage()
-                
+            # Affichage du texte quand le joueur a perdu
             else:
                 for texte in self.textes_police:
                     texte.affichage()
